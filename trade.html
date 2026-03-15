@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>交易日志 · 紫调</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        :root {
+            --bg-primary: #f3f0f5;
+            --bg-secondary: #ffffff;
+            --text-primary: #4a4252;
+            --text-secondary: #7a6e84;
+            --border-light: #d9d0e0;
+            --card-bg: #ffffff;
+            --accent-buy: #9a8aa8;
+            --accent-sell: #a89a8a;
+            --accent-event: #a89aaa;
+            --accent-trend: #aaa08a;
+            --shadow: 0 4px 16px rgba(90,70,110,0.08);
+            --nav-bg: #faf8fc;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #2a2530;
+            --bg-secondary: #3a3342;
+            --text-primary: #e0d5e8;
+            --text-secondary: #b5a8c2;
+            --border-light: #5a4e68;
+            --card-bg: #3f3848;
+            --accent-buy: #7a6a88;
+            --accent-sell: #887a6a;
+            --accent-event: #6a7a7a;
+            --accent-trend: #7a7a6a;
+            --shadow: 0 4px 16px rgba(0,0,0,0.3);
+            --nav-bg: #322c3a;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        #app {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 500px;
+            margin: 0 auto;
+            width: 100%;
+            background-color: var(--bg-primary);
+            padding-top: env(safe-area-inset-top); /* 灵动岛适配 */
+        }
+
+        .header {
+            padding: 16px 28px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-light);
+            background-color: var(--bg-secondary);
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .header-icon {
+            font-size: 1.6rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: color 0.2s;
+        }
+
+        .header-icon:hover {
+            color: var(--accent-buy);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            background-color: var(--nav-bg);
+            border-top: 1px solid var(--border-light);
+        }
+
+        .nav-item {
+            flex: 1;
+            text-align: center;
+            padding: 8px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: var(--accent-buy);
+            font-weight: 500;
+        }
+
+        .content {
+            flex: 1;
+            padding: 28px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* 卡片统一样式：内边距28px，所有卡片统一 */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-light);
+        }
+
+        /* 日期导航卡片（特殊处理，保持左右箭头紧凑） */
+        .date-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            background-color: var(--card-bg);
+            border-radius: 40px;
+            padding: 8px 16px;
+            border: 1px solid var(--border-light);
+        }
+
+        .date-nav .date-display {
+            font-size: 1.2rem;
+            font-weight: 500;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            padding: 4px 12px;
+            cursor: pointer;
+        }
+
+        .arrow {
+            font-size: 1.5rem;
+            padding: 0 8px;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        /* 交易条目内部样式 */
+        .trade-item {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .trade-item:last-child {
+            border-bottom: none;
+        }
+
+        .trade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .trade-symbol {
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .trade-type {
+            font-size: 0.8rem;
+            padding: 4px 14px;
+            border-radius: 30px;
+            color: white;
+        }
+
+        .trade-type.buy {
+            background-color: var(--accent-buy);
+        }
+
+        .trade-type.sell {
+            background-color: var(--accent-sell);
+        }
+
+        .trade-detail {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+
+        .trade-reason, .trade-expect, .trade-note {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            margin-top: 10px;
+            padding-left: 14px;
+            border-left: 3px solid var(--accent-buy);
+            line-height: 1.5;
+        }
+
+        .trade-actions {
+            display: flex;
+            gap: 24px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+
+        .trade-actions span {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            padding: 4px 0;
+        }
+
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: 28px;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background-color: var(--accent-buy);
+            color: white;
+            border: none;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 16px rgba(90,70,110,0.25);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* 全屏设置模态框 */
+        .modal-full {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--bg-primary);
+            z-index: 30;
+            overflow-y: auto;
+        }
+
+        .modal-full.show {
+            display: block;
+        }
+
+        .modal-header {
+            padding: 16px 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-light);
+            background-color: var(--bg-secondary);
+        }
+
+        .modal-header h2 {
+            font-size: 1.4rem;
+            font-weight: 500;
+        }
+
+        .close-icon {
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-secondary);
+        }
+
+        .modal-content {
+            padding: 28px;
+        }
+
+        /* 小模态框（资金、事件等） */
+        .modal-small {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(0,0,0,0.4);
+            align-items: center;
+            justify-content: center;
+            z-index: 40;
+        }
+
+        .modal-small.show {
+            display: flex;
+        }
+
+        .modal-small .modal-content {
+            background-color: var(--card-bg);
+            width: 90%;
+            max-width: 400px;
+            border-radius: 28px;
+            padding: 28px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid var(--border-light);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 40px;
+            border: none;
+            background-color: var(--accent-buy);
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .btn.small {
+            padding: 10px 20px;
+            flex: 0 1 auto;
+        }
+
+        .btn.secondary {
+            background-color: transparent;
+            border: 2px solid var(--border-light);
+            color: var(--text-primary);
+        }
+
+        .stats-header {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .date-range {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .range-btn {
+            padding: 8px 18px;
+            border-radius: 40px;
+            border: 1px solid var(--border-light);
+            background: none;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .range-btn.active {
+            background-color: var(--accent-buy);
+            color: white;
+            border-color: var(--accent-buy);
+        }
+
+        .custom-range {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .custom-range input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .overview-card {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .overview-item {
+            text-align: center;
+        }
+
+        .overview-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .overview-value {
+            font-size: 1.6rem;
+            font-weight: 500;
+            line-height: 1.2;
+        }
+
+        .stock-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        .stock-table th {
+            text-align: left;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            padding-bottom: 14px;
+        }
+
+        .stock-table td {
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .position-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .position-info {
+            flex: 2;
+        }
+
+        .position-price {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .position-price input {
+            width: 90px;
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border-light);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .event-item {
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .event-type {
+            font-size: 0.75rem;
+            padding: 4px 14px;
+            border-radius: 30px;
+            color: white;
+        }
+
+        .event-type.event {
+            background-color: var(--accent-event);
+        }
+
+        .event-type.trend {
+            background-color: var(--accent-trend);
+        }
+
+        .event-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin: 8px 0;
+        }
+
+        .event-content {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .capital-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .capital-info {
+            flex: 1;
+        }
+
+        .capital-actions span {
+            margin-left: 16px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .toggle-switch {
+            width: 48px;
+            height: 26px;
+            background-color: var(--border-light);
+            border-radius: 40px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            width: 22px;
+            height: 22px;
+            background-color: white;
+            border-radius: 50%;
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            transition: 0.2s;
+        }
+
+        .toggle-switch.active {
+            background-color: var(--accent-buy);
+        }
+
+        .toggle-switch.active::after {
+            left: 24px;
+        }
+
+        .text-center { text-align: center; }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="header">
+            <h1 id="page-title">日志</h1>
+            <div class="header-icon" onclick="openSettingsModal()">⚙️</div>
+        </div>
+        <div id="content" class="content"></div>
+        <div class="nav">
+            <div class="nav-item active" data-page="log">日志</div>
+            <div class="nav-item" data-page="stats">统计</div>
+            <div class="nav-item" data-page="events">事件</div>
+        </div>
+    </div>
+
+    <!-- 全屏设置模态框 -->
+    <div id="settingsModal" class="modal-full">
+        <div class="modal-header">
+            <h2>设置</h2>
+            <span class="close-icon" onclick="closeSettingsModal()">✕</span>
+        </div>
+        <div class="modal-content">
+            <div class="card">
+                <div class="setting-item">
+                    <span>夜间模式</span>
+                    <div class="toggle-switch" id="themeToggle" onclick="toggleTheme()"></div>
+                </div>
+                <div class="setting-item">
+                    <span>导出数据</span>
+                    <button class="btn small" onclick="exportData()">导出</button>
+                </div>
+                <div class="setting-item">
+                    <span>导入数据</span>
+                    <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+                    <button class="btn small" onclick="document.getElementById('importFile').click()">导入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 交易模态框 -->
+    <div id="tradeModal" class="modal-small">
+        <div class="modal-content">
+            <h2 id="modalTitle">新增交易</h2>
+            <form id="tradeForm">
+                <input type="hidden" id="tradeId">
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" id="tradeDate" required>
+                </div>
+                <div class="form-group">
+                    <label>股票代码/名称</label>
+                    <input type="text" id="tradeSymbol" placeholder="例如 600036" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>类型</label>
+                        <select id="tradeType">
+                            <option value="buy">买入</option>
+                            <option value="sell">卖出</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>数量</label>
+                        <input type="number" id="tradeQuantity" step="0.00001" min="0.00001" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>价格</label>
+                        <input type="number" id="tradePrice" step="0.01" min="0.01" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>交易原因</label>
+                    <textarea id="tradeReason" placeholder="为什么交易？"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>交易期望</label>
+                    <textarea id="tradeExpect" placeholder="预期目标或逻辑"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>备注</label>
+                    <textarea id="tradeNote" placeholder="额外信息"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn secondary" onclick="closeModal('tradeModal')">取消</button>
+                    <button type="submit" class="btn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 资金模态框 -->
+    <div id="capitalModal" class="modal-small">
+        <div class="modal-content">
+            <h2 id="capitalModalTitle">资金变动</h2>
+            <form id="capitalForm">
+                <input type="hidden" id="capitalId">
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" id="capitalDate" required>
+                </div>
+                <div class="form-group">
+                    <label>类型</label>
+                    <select id="capitalType">
+                        <option value="initial">初始资金</option>
+                        <option value="deposit">入金</option>
+                        <option value="withdrawal">出金</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>金额</label>
+                    <input type="number" id="capitalAmount" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label>备注</label>
+                    <textarea id="capitalNote"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn secondary" onclick="closeModal('capitalModal')">取消</button>
+                    <button type="submit" class="btn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 事件模态框 -->
+    <div id="eventModal" class="modal-small">
+        <div class="modal-content">
+            <h2 id="eventModalTitle">新增事件/潮流</h2>
+            <form id="eventForm">
+                <input type="hidden" id="eventId">
+                <div class="form-group">
+                    <label>日期</label>
+                    <input type="date" id="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label>类型</label>
+                    <select id="eventType">
+                        <option value="event">事件</option>
+                        <option value="trend">潮流</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>标题</label>
+                    <input type="text" id="eventTitle" required>
+                </div>
+                <div class="form-group">
+                    <label>内容</label>
+                    <textarea id="eventContent" rows="4"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn secondary" onclick="closeModal('eventModal')">取消</button>
+                    <button type="submit" class="btn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 资金列表模态框 -->
+    <div id="capitalListModal" class="modal-small">
+        <div class="modal-content" style="max-width: 450px;">
+            <h2>资金记录</h2>
+            <div id="capitalListContainer"></div>
+            <div style="margin-top: 24px; display: flex; gap: 12px;">
+                <button class="btn secondary" onclick="closeModal('capitalListModal')">关闭</button>
+                <button class="btn" onclick="openCapitalModal()">新增记录</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="fab" id="fab" onclick="openAddModal()">+</button>
+
+    <script>
+        // ---------- IndexedDB 封装 ----------
+        const DB_NAME = 'TradeLogDB';
+        const DB_VERSION = 2;
+        const STORES = {
+            trades: 'trades',
+            capital: 'capital',
+            prices: 'prices',
+            events: 'events'
+        };
+
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains(STORES.trades)) {
+                        const tradeStore = db.createObjectStore(STORES.trades, { keyPath: 'id' });
+                        tradeStore.createIndex('date', 'date');
+                    }
+                    if (!db.objectStoreNames.contains(STORES.capital)) {
+                        const capitalStore = db.createObjectStore(STORES.capital, { keyPath: 'id' });
+                        capitalStore.createIndex('date', 'date');
+                    }
+                    if (!db.objectStoreNames.contains(STORES.prices)) {
+                        db.createObjectStore(STORES.prices, { keyPath: 'symbol' });
+                    }
+                    if (!db.objectStoreNames.contains(STORES.events)) {
+                        const eventStore = db.createObjectStore(STORES.events, { keyPath: 'id' });
+                        eventStore.createIndex('date', 'date');
+                    }
+                };
+            });
+        }
+
+        async function getAll(storeName) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readonly');
+                const store = tx.objectStore(storeName);
+                const request = store.getAll();
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function getById(storeName, id) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readonly');
+                const store = tx.objectStore(storeName);
+                const request = store.get(id);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function put(storeName, data) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readwrite');
+                const store = tx.objectStore(storeName);
+                const request = store.put(data);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        async function remove(storeName, id) {
+            const db = await openDB();
+            return new Promise((resolve, reject) => {
+                const tx = db.transaction(storeName, 'readwrite');
+                const store = tx.objectStore(storeName);
+                const request = store.delete(id);
+                request.onsuccess = () => resolve();
+                request.onerror = () => reject(request.error);
+            });
+        }
+
+        // ---------- 全局变量 ----------
+        let currentPage = 'log';
+        let currentDate = new Date().toISOString().split('T')[0];
+        let rangeStart = '', rangeEnd = '', rangeType = 'week';
+        let theme = localStorage.getItem('theme') || 'light';
+        document.documentElement.setAttribute('data-theme', theme);
+
+        // ---------- 初始化 ----------
+        async function init() {
+            const capitals = await getAll(STORES.capital);
+            if (capitals.length === 0) {
+                await put(STORES.capital, {
+                    id: 'init_' + Date.now(),
+                    date: new Date().toISOString().split('T')[0],
+                    type: 'initial',
+                    amount: 0,
+                    note: '初始资金'
+                });
+            }
+            updateRangeByType('week');
+            updateToggleUI();
+            render();
+        }
+
+        function updateRangeByType(type) {
+            rangeType = type;
+            const today = new Date();
+            if (type === 'today') {
+                rangeStart = today.toISOString().split('T')[0];
+                rangeEnd = rangeStart;
+            } else if (type === 'week') {
+                const first = today.getDate() - today.getDay() + 1;
+                const start = new Date(today.setDate(first));
+                rangeStart = start.toISOString().split('T')[0];
+                rangeEnd = new Date().toISOString().split('T')[0];
+            } else if (type === 'month') {
+                const start = new Date(today.getFullYear(), today.getMonth(), 1);
+                rangeStart = start.toISOString().split('T')[0];
+                rangeEnd = new Date().toISOString().split('T')[0];
+            }
+        }
+
+        function updateToggleUI() {
+            const toggle = document.getElementById('themeToggle');
+            if (toggle) {
+                if (theme === 'dark') toggle.classList.add('active');
+                else toggle.classList.remove('active');
+            }
+        }
+
+        // ---------- 渲染主内容 ----------
+        async function render() {
+            const content = document.getElementById('content');
+            const title = document.getElementById('page-title');
+            const fab = document.getElementById('fab');
+            if (currentPage === 'log') {
+                title.innerText = '日志';
+                fab.style.display = 'flex';
+                content.innerHTML = await renderLogPage();
+            } else if (currentPage === 'stats') {
+                title.innerText = '统计';
+                fab.style.display = 'none';
+                content.innerHTML = await renderStatsPage();
+            } else if (currentPage === 'events') {
+                title.innerText = '事件';
+                fab.style.display = 'flex';
+                content.innerHTML = await renderEventsPage();
+            }
+        }
+
+        // ---------- 日志页 ----------
+        async function renderLogPage() {
+            const trades = await getAll(STORES.trades);
+            const dayTrades = trades.filter(t => t.date === currentDate).sort((a,b) => b.createdAt - a.createdAt);
+            let html = `
+                <div class="date-nav">
+                    <span class="arrow" onclick="changeDay(-1)">←</span>
+                    <span class="date-display" onclick="openCalendar()">${currentDate}</span>
+                    <span class="arrow" onclick="changeDay(1)">→</span>
+                </div>
+            `;
+            if (dayTrades.length === 0) {
+                html += `<div class="card text-center" style="color: var(--text-secondary);">暂无交易记录</div>`;
+            } else {
+                dayTrades.forEach(t => {
+                    const typeClass = t.type === 'buy' ? 'buy' : 'sell';
+                    const qtyStr = t.quantity.toFixed(5);
+                    html += `
+                        <div class="card">
+                            <div class="trade-item" data-id="${t.id}">
+                                <div class="trade-header">
+                                    <span class="trade-symbol">${escapeHtml(t.symbol)}</span>
+                                    <span class="trade-type ${typeClass}">${t.type === 'buy' ? '买入' : '卖出'}</span>
+                                </div>
+                                <div class="trade-detail">
+                                    <span>数量: ${qtyStr}</span>
+                                    <span>价格: ${t.price.toFixed(2)}</span>
+                                </div>
+                                ${t.reason ? `<div class="trade-reason">原因: ${escapeHtml(t.reason)}</div>` : ''}
+                                ${t.expect ? `<div class="trade-expect">期望: ${escapeHtml(t.expect)}</div>` : ''}
+                                ${t.note ? `<div class="trade-note">备注: ${escapeHtml(t.note)}</div>` : ''}
+                                <div class="trade-actions">
+                                    <span onclick="editTrade('${t.id}')">编辑</span>
+                                    <span onclick="deleteTrade('${t.id}')">删除</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            return html;
+        }
+
+        // ---------- 统计页 ----------
+        async function renderStatsPage() {
+            const trades = await getAll(STORES.trades);
+            const capitals = await getAll(STORES.capital);
+            const prices = await getAll(STORES.prices);
+
+            const allTradesSorted = [...trades].sort((a,b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt);
+
+            const positions = {};
+            let realizedPL = 0;
+            for (const t of allTradesSorted) {
+                if (!positions[t.symbol]) positions[t.symbol] = { quantity: 0, totalCost: 0, avgPrice: 0 };
+                const pos = positions[t.symbol];
+                if (t.type === 'buy') {
+                    pos.quantity += t.quantity;
+                    pos.totalCost += t.quantity * t.price;
+                    pos.avgPrice = pos.totalCost / pos.quantity;
+                } else {
+                    if (pos.quantity >= t.quantity) {
+                        const pl = t.quantity * (t.price - pos.avgPrice);
+                        realizedPL += pl;
+                        pos.quantity -= t.quantity;
+                        pos.totalCost = pos.quantity * pos.avgPrice;
+                    }
+                }
+            }
+
+            let intervalSellPL = 0;
+            let sellCount = 0;
+            let winCount = 0;
+            const tempPos = {};
+            for (const t of allTradesSorted) {
+                if (t.date < rangeStart) {
+                    if (!tempPos[t.symbol]) tempPos[t.symbol] = { quantity: 0, totalCost: 0, avgPrice: 0 };
+                    const pos = tempPos[t.symbol];
+                    if (t.type === 'buy') {
+                        pos.quantity += t.quantity;
+                        pos.totalCost += t.quantity * t.price;
+                        pos.avgPrice = pos.totalCost / pos.quantity;
+                    } else {
+                        if (pos.quantity >= t.quantity) {
+                            pos.quantity -= t.quantity;
+                            pos.totalCost = pos.quantity * pos.avgPrice;
+                        }
+                    }
+                }
+            }
+            for (const t of allTradesSorted) {
+                if (t.date >= rangeStart && t.date <= rangeEnd) {
+                    if (!tempPos[t.symbol]) tempPos[t.symbol] = { quantity: 0, totalCost: 0, avgPrice: 0 };
+                    const pos = tempPos[t.symbol];
+                    if (t.type === 'buy') {
+                        pos.quantity += t.quantity;
+                        pos.totalCost += t.quantity * t.price;
+                        pos.avgPrice = pos.totalCost / pos.quantity;
+                    } else {
+                        if (pos.quantity >= t.quantity) {
+                            const pl = t.quantity * (t.price - pos.avgPrice);
+                            intervalSellPL += pl;
+                            sellCount++;
+                            if (pl > 0) winCount++;
+                            pos.quantity -= t.quantity;
+                            pos.totalCost = pos.quantity * pos.avgPrice;
+                        }
+                    }
+                }
+            }
+
+            let initialCapital = 0;
+            let totalDeposit = 0;
+            let totalWithdrawal = 0;
+            capitals.forEach(c => {
+                if (c.type === 'initial') initialCapital = c.amount;
+                else if (c.type === 'deposit') totalDeposit += c.amount;
+                else if (c.type === 'withdrawal') totalWithdrawal += c.amount;
+            });
+            const currentCapital = initialCapital + totalDeposit - totalWithdrawal + realizedPL;
+
+            const stockIntervalPL = {};
+            const tempPos2 = {};
+            for (const t of allTradesSorted) {
+                if (t.date < rangeStart) {
+                    if (!tempPos2[t.symbol]) tempPos2[t.symbol] = { quantity: 0, totalCost: 0, avgPrice: 0 };
+                    const pos = tempPos2[t.symbol];
+                    if (t.type === 'buy') {
+                        pos.quantity += t.quantity;
+                        pos.totalCost += t.quantity * t.price;
+                        pos.avgPrice = pos.totalCost / pos.quantity;
+                    } else {
+                        if (pos.quantity >= t.quantity) {
+                            pos.quantity -= t.quantity;
+                            pos.totalCost = pos.quantity * pos.avgPrice;
+                        }
+                    }
+                }
+            }
+            for (const t of allTradesSorted) {
+                if (t.date >= rangeStart && t.date <= rangeEnd) {
+                    if (!tempPos2[t.symbol]) tempPos2[t.symbol] = { quantity: 0, totalCost: 0, avgPrice: 0 };
+                    const pos = tempPos2[t.symbol];
+                    if (t.type === 'buy') {
+                        pos.quantity += t.quantity;
+                        pos.totalCost += t.quantity * t.price;
+                        pos.avgPrice = pos.totalCost / pos.quantity;
+                    } else {
+                        if (pos.quantity >= t.quantity) {
+                            const pl = t.quantity * (t.price - pos.avgPrice);
+                            if (!stockIntervalPL[t.symbol]) stockIntervalPL[t.symbol] = 0;
+                            stockIntervalPL[t.symbol] += pl;
+                            pos.quantity -= t.quantity;
+                            pos.totalCost = pos.quantity * pos.avgPrice;
+                        }
+                    }
+                }
+            }
+
+            let stockRows = '';
+            const stockMap = {};
+            trades.forEach(t => {
+                if (t.date >= rangeStart && t.date <= rangeEnd) {
+                    if (!stockMap[t.symbol]) stockMap[t.symbol] = { buyAmount: 0, sellAmount: 0 };
+                    if (t.type === 'buy') stockMap[t.symbol].buyAmount += t.quantity * t.price;
+                    else stockMap[t.symbol].sellAmount += t.quantity * t.price;
+                }
+            });
+            for (const symbol in stockMap) {
+                const buy = stockMap[symbol].buyAmount;
+                const sell = stockMap[symbol].sellAmount;
+                const pl = stockIntervalPL[symbol] || 0;
+                stockRows += `
+                    <tr>
+                        <td>${escapeHtml(symbol)}</td>
+                        <td>${buy.toFixed(2)}</td>
+                        <td>${sell.toFixed(2)}</td>
+                        <td style="color:${pl >= 0 ? '#9a8aa8' : '#a89a8a'};">${pl.toFixed(2)}</td>
+                    </tr>
+                `;
+            }
+            if (!stockRows) stockRows = '<tr><td colspan="4" style="text-align:center;">暂无区间交易</td></tr>';
+
+            let positionHtml = '';
+            for (const symbol in positions) {
+                if (positions[symbol].quantity > 0) {
+                    const pos = positions[symbol];
+                    const priceRec = prices.find(p => p.symbol === symbol);
+                    const currentPrice = priceRec ? priceRec.price : null;
+                    const marketValue = currentPrice ? pos.quantity * currentPrice : 0;
+                    const costValue = pos.quantity * pos.avgPrice;
+                    const floatPL = currentPrice ? marketValue - costValue : 0;
+                    const floatPLPercent = costValue ? (floatPL / costValue * 100).toFixed(2) : '-';
+                    const qtyStr = pos.quantity.toFixed(5);
+                    positionHtml += `
+                        <div class="position-item">
+                            <div class="position-info">
+                                <div><strong>${escapeHtml(symbol)}</strong>  ${qtyStr}股</div>
+                                <div style="font-size:0.85rem; color:var(--text-secondary);">成本 ${pos.avgPrice.toFixed(2)}</div>
+                            </div>
+                            <div class="position-price">
+                                <input type="number" step="0.01" id="price_${symbol}" value="${currentPrice !== null ? currentPrice : ''}" placeholder="现价">
+                                <button class="btn small" onclick="updatePrice('${symbol}')">更新</button>
+                            </div>
+                            <div style="text-align:right;">
+                                <div>${currentPrice ? marketValue.toFixed(2) : '-'}</div>
+                                <div style="color:${floatPL >= 0 ? '#9a8aa8' : '#a89a8a'};">${floatPL !== 0 ? floatPL.toFixed(2) : '-'} (${floatPLPercent}%)</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            if (!positionHtml) positionHtml = '<div style="color:var(--text-secondary);">暂无持仓</div>';
+
+            return `
+                <div class="stats-header">
+                    <div class="date-range">
+                        <span class="range-btn ${rangeType === 'today' ? 'active' : ''}" onclick="setRange('today')">今日</span>
+                        <span class="range-btn ${rangeType === 'week' ? 'active' : ''}" onclick="setRange('week')">本周</span>
+                        <span class="range-btn ${rangeType === 'month' ? 'active' : ''}" onclick="setRange('month')">本月</span>
+                        <span class="range-btn ${rangeType === 'custom' ? 'active' : ''}" onclick="setRange('custom')">自定义</span>
+                    </div>
+                    ${rangeType === 'custom' ? `
+                    <div class="custom-range">
+                        <input type="date" id="customStart" value="${rangeStart}">
+                        <span>至</span>
+                        <input type="date" id="customEnd" value="${rangeEnd}">
+                        <button class="btn small" onclick="applyCustomRange()">应用</button>
+                    </div>
+                    ` : ''}
+                </div>
+                <div class="card">
+                    <div class="overview-card">
+                        <div class="overview-item">
+                            <div class="overview-label">初始资金</div>
+                            <div class="overview-value">${initialCapital.toFixed(2)}</div>
+                        </div>
+                        <div class="overview-item">
+                            <div class="overview-label">当前资金</div>
+                            <div class="overview-value">${currentCapital.toFixed(2)}</div>
+                        </div>
+                        <div class="overview-item">
+                            <div class="overview-label">区间盈亏</div>
+                            <div class="overview-value" style="color:${intervalSellPL >= 0 ? '#9a8aa8' : '#a89a8a'};">${intervalSellPL.toFixed(2)}</div>
+                        </div>
+                        <div class="overview-item">
+                            <div class="overview-label">胜率</div>
+                            <div class="overview-value">${sellCount ? ((winCount/sellCount*100).toFixed(1) + '%') : '-'}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:16px;">
+                        <button class="btn" onclick="openCapitalListModal()">资金管理</button>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:12px;">按股票汇总（区间）</h3>
+                    <table class="stock-table">
+                        <thead><tr><th>股票</th><th>买入额</th><th>卖出额</th><th>盈亏</th></tr></thead>
+                        <tbody>${stockRows}</tbody>
+                    </table>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom:12px;">当前持仓</h3>
+                    ${positionHtml}
+                </div>
+            `;
+        }
+
+        // ---------- 事件页 ----------
+        async function renderEventsPage() {
+            const events = await getAll(STORES.events);
+            events.sort((a,b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+            let html = '';
+            events.forEach(e => {
+                html += `
+                    <div class="card">
+                        <div class="event-item" data-id="${e.id}">
+                            <div class="event-header">
+                                <span class="event-type ${e.type}">${e.type === 'event' ? '事件' : '潮流'}</span>
+                                <span style="color:var(--text-secondary);">${e.date}</span>
+                            </div>
+                            <div class="event-title">${escapeHtml(e.title)}</div>
+                            <div class="event-content">${escapeHtml(e.content)}</div>
+                            <div class="trade-actions">
+                                <span onclick="editEvent('${e.id}')">编辑</span>
+                                <span onclick="deleteEvent('${e.id}')">删除</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            if (!html) html = '<div class="card text-center">暂无事件</div>';
+            return html;
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>"]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                return m;
+            });
+        }
+
+        // ---------- 页面切换 ----------
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', async (e) => {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                item.classList.add('active');
+                currentPage = item.dataset.page;
+                await render();
+            });
+        });
+
+        // ---------- 日志操作 ----------
+        function changeDay(delta) {
+            const d = new Date(currentDate);
+            d.setDate(d.getDate() + delta);
+            currentDate = d.toISOString().split('T')[0];
+            render();
+        }
+
+        function openCalendar() {
+            const input = document.createElement('input');
+            input.type = 'date';
+            input.value = currentDate;
+            input.style.position = 'fixed';
+            input.style.opacity = '0';
+            document.body.appendChild(input);
+            input.addEventListener('change', (e) => {
+                currentDate = e.target.value;
+                render();
+                document.body.removeChild(input);
+            });
+            input.showPicker();
+        }
+
+        function openAddModal() {
+            if (currentPage === 'log') {
+                document.getElementById('modalTitle').innerText = '新增交易';
+                document.getElementById('tradeForm').reset();
+                document.getElementById('tradeId').value = '';
+                document.getElementById('tradeDate').value = currentDate;
+                document.getElementById('tradeModal').classList.add('show');
+            } else if (currentPage === 'events') {
+                openAddEventModal();
+            }
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        document.getElementById('tradeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('tradeId').value || 'trade_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const trade = {
+                id,
+                date: document.getElementById('tradeDate').value,
+                symbol: document.getElementById('tradeSymbol').value.trim(),
+                type: document.getElementById('tradeType').value,
+                quantity: Number(document.getElementById('tradeQuantity').value),
+                price: Number(document.getElementById('tradePrice').value),
+                reason: document.getElementById('tradeReason').value.trim(),
+                expect: document.getElementById('tradeExpect').value.trim(),
+                note: document.getElementById('tradeNote').value.trim(),
+                createdAt: Date.now()
+            };
+            await put(STORES.trades, trade);
+            closeModal('tradeModal');
+            render();
+        });
+
+        async function editTrade(id) {
+            const trade = await getById(STORES.trades, id);
+            if (!trade) return;
+            document.getElementById('modalTitle').innerText = '编辑交易';
+            document.getElementById('tradeId').value = trade.id;
+            document.getElementById('tradeDate').value = trade.date;
+            document.getElementById('tradeSymbol').value = trade.symbol;
+            document.getElementById('tradeType').value = trade.type;
+            document.getElementById('tradeQuantity').value = trade.quantity;
+            document.getElementById('tradePrice').value = trade.price;
+            document.getElementById('tradeReason').value = trade.reason || '';
+            document.getElementById('tradeExpect').value = trade.expect || '';
+            document.getElementById('tradeNote').value = trade.note || '';
+            document.getElementById('tradeModal').classList.add('show');
+        }
+
+        async function deleteTrade(id) {
+            if (confirm('确定删除此交易记录？')) {
+                await remove(STORES.trades, id);
+                render();
+            }
+        }
+
+        // ---------- 资金管理 ----------
+        function openCapitalModal(existingId) {
+            document.getElementById('capitalModalTitle').innerText = existingId ? '编辑资金' : '新增资金';
+            document.getElementById('capitalForm').reset();
+            document.getElementById('capitalId').value = existingId || '';
+            document.getElementById('capitalDate').value = new Date().toISOString().split('T')[0];
+            if (existingId) {
+                getById(STORES.capital, existingId).then(cap => {
+                    if (cap) {
+                        document.getElementById('capitalDate').value = cap.date;
+                        document.getElementById('capitalType').value = cap.type;
+                        document.getElementById('capitalAmount').value = cap.amount;
+                        document.getElementById('capitalNote').value = cap.note || '';
+                    }
+                });
+            }
+            closeModal('capitalListModal');
+            document.getElementById('capitalModal').classList.add('show');
+        }
+
+        document.getElementById('capitalForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('capitalId').value || 'cap_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const capital = {
+                id,
+                date: document.getElementById('capitalDate').value,
+                type: document.getElementById('capitalType').value,
+                amount: Number(document.getElementById('capitalAmount').value),
+                note: document.getElementById('capitalNote').value.trim(),
+                createdAt: Date.now()
+            };
+            await put(STORES.capital, capital);
+            closeModal('capitalModal');
+            render();
+        });
+
+        async function openCapitalListModal() {
+            const capitals = await getAll(STORES.capital);
+            capitals.sort((a,b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+            let listHtml = '';
+            capitals.forEach(c => {
+                let typeText = '';
+                if (c.type === 'initial') typeText = '初始';
+                else if (c.type === 'deposit') typeText = '入金';
+                else typeText = '出金';
+                listHtml += `
+                    <div class="capital-item">
+                        <div class="capital-info">
+                            <div><strong>${typeText}</strong>  ${c.date}  ${c.amount.toFixed(2)}</div>
+                            ${c.note ? `<div style="font-size:0.85rem; color:var(--text-secondary);">${escapeHtml(c.note)}</div>` : ''}
+                        </div>
+                        <div class="capital-actions">
+                            <span onclick="openCapitalModal('${c.id}')">编辑</span>
+                            <span onclick="deleteCapital('${c.id}')">删除</span>
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('capitalListContainer').innerHTML = listHtml || '<div class="text-center">暂无资金记录</div>';
+            document.getElementById('capitalListModal').classList.add('show');
+        }
+
+        async function deleteCapital(id) {
+            if (confirm('确定删除此资金记录？')) {
+                await remove(STORES.capital, id);
+                openCapitalListModal();
+                render();
+            }
+        }
+
+        // ---------- 更新股价 ----------
+        async function updatePrice(symbol) {
+            const input = document.getElementById('price_' + symbol);
+            const price = Number(input.value);
+            if (isNaN(price) || price <= 0) {
+                alert('请输入有效的正数价格');
+                return;
+            }
+            await put(STORES.prices, { symbol, price, updatedAt: Date.now() });
+            render();
+        }
+
+        // ---------- 日期范围 ----------
+        function setRange(type) {
+            updateRangeByType(type);
+            render();
+        }
+
+        function applyCustomRange() {
+            const start = document.getElementById('customStart').value;
+            const end = document.getElementById('customEnd').value;
+            if (start && end) {
+                rangeStart = start;
+                rangeEnd = end;
+                rangeType = 'custom';
+                render();
+            }
+        }
+
+        // ---------- 事件操作 ----------
+        function openAddEventModal() {
+            document.getElementById('eventModalTitle').innerText = '新增事件/潮流';
+            document.getElementById('eventForm').reset();
+            document.getElementById('eventId').value = '';
+            document.getElementById('eventDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('eventModal').classList.add('show');
+        }
+
+        document.getElementById('eventForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('eventId').value || 'evt_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+            const event = {
+                id,
+                date: document.getElementById('eventDate').value,
+                type: document.getElementById('eventType').value,
+                title: document.getElementById('eventTitle').value.trim(),
+                content: document.getElementById('eventContent').value.trim(),
+                createdAt: Date.now()
+            };
+            await put(STORES.events, event);
+            closeModal('eventModal');
+            render();
+        });
+
+        async function editEvent(id) {
+            const ev = await getById(STORES.events, id);
+            if (!ev) return;
+            document.getElementById('eventModalTitle').innerText = '编辑事件/潮流';
+            document.getElementById('eventId').value = ev.id;
+            document.getElementById('eventDate').value = ev.date;
+            document.getElementById('eventType').value = ev.type;
+            document.getElementById('eventTitle').value = ev.title;
+            document.getElementById('eventContent').value = ev.content;
+            document.getElementById('eventModal').classList.add('show');
+        }
+
+        async function deleteEvent(id) {
+            if (confirm('确定删除此事件？')) {
+                await remove(STORES.events, id);
+                render();
+            }
+        }
+
+        // ---------- 设置 ----------
+        function openSettingsModal() {
+            document.getElementById('settingsModal').classList.add('show');
+        }
+
+        function closeSettingsModal() {
+            document.getElementById('settingsModal').classList.remove('show');
+        }
+
+        function toggleTheme() {
+            theme = theme === 'light' ? 'dark' : 'light';
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            updateToggleUI();
+            render();
+        }
+
+        async function exportData() {
+            const trades = await getAll(STORES.trades);
+            const capital = await getAll(STORES.capital);
+            const prices = await getAll(STORES.prices);
+            const events = await getAll(STORES.events);
+            const data = { trades, capital, prices, events };
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'tradelog_backup.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (confirm('导入将覆盖所有现有数据，确定吗？')) {
+                        if (data.trades) {
+                            for (const t of data.trades) await put(STORES.trades, t);
+                        }
+                        if (data.capital) {
+                            for (const c of data.capital) await put(STORES.capital, c);
+                        }
+                        if (data.prices) {
+                            for (const p of data.prices) await put(STORES.prices, p);
+                        }
+                        if (data.events) {
+                            for (const ev of data.events) await put(STORES.events, ev);
+                        }
+                        alert('导入成功');
+                        closeSettingsModal();
+                        render();
+                    }
+                } catch (err) {
+                    alert('导入失败：' + err);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // 启动
+        init();
+
+        // Service Worker 注册（可选）
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            });
+        }
+    </script>
+    <link rel="manifest" href="data:application/manifest+json,{
+        \"name\": \"交易日志紫调版\",
+        \"short_name\": \"交易日志\",
+        \"start_url\": \".\",
+        \"display\": \"standalone\",
+        \"background_color\": \"#f3f0f5\",
+        \"theme_color\": \"#9a8aa8\",
+        \"icons\": [
+            {
+                \"src\": \"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%239a8aa8'/%3E%3Ctext x='50' y='70' font-size='50' text-anchor='middle' fill='white' font-family='Arial'%3E📈%3C/text%3E%3C/svg%3E\",
+                \"sizes\": \"192x192\",
+                \"type\": \"image/svg+xml\"
+            }
+        ]
+    }">
+</body>
+</html>
