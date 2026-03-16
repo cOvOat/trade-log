@@ -23,7 +23,7 @@
             --accent-sell: #a89a8a;
             --accent-event: #a89aaa;
             --accent-trend: #aaa08a;
-            --shadow: 0 4px 16px rgba(90,70,110,0.08);
+            --shadow: 0 2px 12px rgba(90,70,110,0.08);
             --nav-bg: #faf8fc;
         }
 
@@ -38,7 +38,7 @@
             --accent-sell: #887a6a;
             --accent-event: #6a7a7a;
             --accent-trend: #7a7a6a;
-            --shadow: 0 4px 16px rgba(0,0,0,0.3);
+            --shadow: 0 2px 12px rgba(0,0,0,0.3);
             --nav-bg: #322c3a;
         }
 
@@ -59,11 +59,11 @@
             margin: 0 auto;
             width: 100%;
             background-color: var(--bg-primary);
-            padding-top: env(safe-area-inset-top); /* 灵动岛适配 */
+            padding-top: env(safe-area-inset-top);
         }
 
         .header {
-            padding: 16px 28px 8px;
+            padding: 16px 20px 8px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -113,27 +113,38 @@
 
         .content {
             flex: 1;
-            padding: 28px;
+            padding: 20px;
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
         }
 
-        /* 卡片统一样式：内边距28px，所有卡片统一 */
+        /* 卡片统一样式：上下28px，左右60px，让记录卡片文字更居中 */
         .card {
             background-color: var(--card-bg);
-            border-radius: 24px;
-            padding: 28px;
-            margin-bottom: 24px;
+            border-radius: 20px;
+            padding: 28px 60px;
+            margin-bottom: 20px;
             box-shadow: var(--shadow);
             border: 1px solid var(--border-light);
         }
+        /* 只修改日志页的交易记录卡片 */
+        .trade-item.card {
+             padding-left: 80px;
+              padding-right: 80px;
+        }
 
-        /* 日期导航卡片（特殊处理，保持左右箭头紧凑） */
+        /* 只修改事件页的事件卡片 */
+        .event-item.card {
+             padding-left: 80px;
+             padding-right: 80px;
+        }
+
+        /* 日期导航卡片单独处理（保持左右箭头贴边视觉） */
         .date-nav {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             background-color: var(--card-bg);
             border-radius: 40px;
             padding: 8px 16px;
@@ -157,9 +168,8 @@
             color: var(--text-secondary);
         }
 
-        /* 交易条目内部样式 */
         .trade-item {
-            padding: 20px 0;
+            padding: 16px 0;
             border-bottom: 1px solid var(--border-light);
         }
 
@@ -171,7 +181,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .trade-symbol {
@@ -197,26 +207,26 @@
         .trade-detail {
             display: flex;
             flex-wrap: wrap;
-            gap: 20px;
+            gap: 16px;
             font-size: 0.95rem;
             color: var(--text-secondary);
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .trade-reason, .trade-expect, .trade-note {
             font-size: 0.95rem;
             color: var(--text-primary);
-            margin-top: 10px;
-            padding-left: 14px;
+            margin-top: 8px;
+            padding-left: 12px;
             border-left: 3px solid var(--accent-buy);
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         .trade-actions {
             display: flex;
-            gap: 24px;
+            gap: 20px;
             justify-content: flex-end;
-            margin-top: 16px;
+            margin-top: 12px;
         }
 
         .trade-actions span {
@@ -229,7 +239,7 @@
         .fab {
             position: fixed;
             bottom: 80px;
-            right: 28px;
+            right: 20px;
             width: 60px;
             height: 60px;
             border-radius: 30px;
@@ -245,7 +255,6 @@
             z-index: 10;
         }
 
-        /* 全屏设置模态框 */
         .modal-full {
             display: none;
             position: fixed;
@@ -260,7 +269,7 @@
         }
 
         .modal-header {
-            padding: 16px 28px;
+            padding: 16px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -280,10 +289,9 @@
         }
 
         .modal-content {
-            padding: 28px;
+            padding: 20px;
         }
 
-        /* 小模态框（资金、事件等） */
         .modal-small {
             display: none;
             position: fixed;
@@ -303,18 +311,18 @@
             width: 90%;
             max-width: 400px;
             border-radius: 28px;
-            padding: 28px;
+            padding: 24px;
             max-height: 80vh;
             overflow-y: auto;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-size: 0.9rem;
             color: var(--text-secondary);
         }
@@ -330,7 +338,7 @@
         }
 
         .form-group textarea {
-            min-height: 100px;
+            min-height: 90px;
         }
 
         .form-row {
@@ -341,7 +349,7 @@
         .modal-actions {
             display: flex;
             gap: 12px;
-            margin-top: 28px;
+            margin-top: 24px;
         }
 
         .btn {
@@ -370,7 +378,7 @@
             display: flex;
             flex-direction: column;
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 20px;
         }
 
         .date-range {
@@ -380,7 +388,7 @@
         }
 
         .range-btn {
-            padding: 8px 18px;
+            padding: 8px 16px;
             border-radius: 40px;
             border: 1px solid var(--border-light);
             background: none;
@@ -413,7 +421,7 @@
         .overview-card {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 24px;
+            gap: 20px;
         }
 
         .overview-item {
@@ -432,30 +440,55 @@
             line-height: 1.2;
         }
 
-        .stock-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 8px;
-        }
-
-        .stock-table th {
-            text-align: left;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            padding-bottom: 14px;
-        }
-
-        .stock-table td {
-            padding: 14px 0;
-            border-bottom: 1px solid var(--border-light);
-        }
-
         .position-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 0;
+            padding: 12px 0;
             border-bottom: 1px solid var(--border-light);
+        }
+        /* 优化持仓卡片布局和字体 */
+        .position-item {
+             padding: 16px 0;           /* 增加上下间距 */
+             font-size: 0.95rem;        /* 基础字体稍大 */
+        }
+
+        .position-info strong {
+         font-size: 1.1rem;         /* 股票名称大一点 */
+          display: block;
+          margin-bottom: 2px;
+        }
+
+        .position-info div:last-child {
+         font-size: 0.8rem;         /* 成本文字小一点 */
+        color: var(--text-secondary);
+        }
+
+        .position-price input {
+          width: 100px;               /* 调整输入框宽度 */
+          padding: 8px;
+          font-size: 0.9rem;
+        }
+
+        .position-price .btn.small {
+         padding: 8px 12px;
+        font-size: 0.8rem;
+        }
+
+        .position-item > div:last-child {
+          text-align: right;
+         min-width: 100px;           /* 给盈亏区域留足空间 */
+        }
+
+        .position-item > div:last-child div:first-child {
+         font-weight: 600;
+         font-size: 1rem;
+        }
+
+        .position-item > div:last-child div:last-child {
+         font-size: 0.85rem;
+         color: var(--text-secondary);
+         margin-top: 2px;
         }
 
         .position-info {
@@ -478,7 +511,7 @@
         }
 
         .event-item {
-            padding: 20px 0;
+            padding: 16px 0;
             border-bottom: 1px solid var(--border-light);
         }
 
@@ -490,7 +523,7 @@
 
         .event-type {
             font-size: 0.75rem;
-            padding: 4px 14px;
+            padding: 4px 12px;
             border-radius: 30px;
             color: white;
         }
@@ -506,20 +539,20 @@
         .event-title {
             font-weight: 600;
             font-size: 1.1rem;
-            margin: 8px 0;
+            margin: 6px 0;
         }
 
         .event-content {
             color: var(--text-secondary);
             font-size: 0.95rem;
-            line-height: 1.5;
+            line-height: 1.4;
         }
 
         .capital-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 0;
+            padding: 12px 0;
             border-bottom: 1px solid var(--border-light);
         }
 
@@ -538,7 +571,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
+            padding: 16px 0;
             border-bottom: 1px solid var(--border-light);
         }
 
@@ -738,7 +771,7 @@
         <div class="modal-content" style="max-width: 450px;">
             <h2>资金记录</h2>
             <div id="capitalListContainer"></div>
-            <div style="margin-top: 24px; display: flex; gap: 12px;">
+            <div style="margin-top: 20px; display: flex; gap: 12px;">
                 <button class="btn secondary" onclick="closeModal('capitalListModal')">关闭</button>
                 <button class="btn" onclick="openCapitalModal()">新增记录</button>
             </div>
@@ -748,6 +781,14 @@
     <button class="fab" id="fab" onclick="openAddModal()">+</button>
 
     <script>
+        // ---------- 辅助函数：获取本地日期字符串 YYYY-MM-DD ----------
+        function getLocalDateString(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
         // ---------- IndexedDB 封装 ----------
         const DB_NAME = 'TradeLogDB';
         const DB_VERSION = 2;
@@ -830,7 +871,7 @@
 
         // ---------- 全局变量 ----------
         let currentPage = 'log';
-        let currentDate = new Date().toISOString().split('T')[0];
+        let currentDate = getLocalDateString(new Date());
         let rangeStart = '', rangeEnd = '', rangeType = 'week';
         let theme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', theme);
@@ -841,33 +882,14 @@
             if (capitals.length === 0) {
                 await put(STORES.capital, {
                     id: 'init_' + Date.now(),
-                    date: new Date().toISOString().split('T')[0],
+                    date: getLocalDateString(new Date()),
                     type: 'initial',
                     amount: 0,
                     note: '初始资金'
                 });
             }
-            updateRangeByType('week');
             updateToggleUI();
             render();
-        }
-
-        function updateRangeByType(type) {
-            rangeType = type;
-            const today = new Date();
-            if (type === 'today') {
-                rangeStart = today.toISOString().split('T')[0];
-                rangeEnd = rangeStart;
-            } else if (type === 'week') {
-                const first = today.getDate() - today.getDay() + 1;
-                const start = new Date(today.setDate(first));
-                rangeStart = start.toISOString().split('T')[0];
-                rangeEnd = new Date().toISOString().split('T')[0];
-            } else if (type === 'month') {
-                const start = new Date(today.getFullYear(), today.getMonth(), 1);
-                rangeStart = start.toISOString().split('T')[0];
-                rangeEnd = new Date().toISOString().split('T')[0];
-            }
         }
 
         function updateToggleUI() {
@@ -916,23 +938,21 @@
                     const typeClass = t.type === 'buy' ? 'buy' : 'sell';
                     const qtyStr = t.quantity.toFixed(5);
                     html += `
-                        <div class="card">
-                            <div class="trade-item" data-id="${t.id}">
-                                <div class="trade-header">
-                                    <span class="trade-symbol">${escapeHtml(t.symbol)}</span>
-                                    <span class="trade-type ${typeClass}">${t.type === 'buy' ? '买入' : '卖出'}</span>
-                                </div>
-                                <div class="trade-detail">
-                                    <span>数量: ${qtyStr}</span>
-                                    <span>价格: ${t.price.toFixed(2)}</span>
-                                </div>
-                                ${t.reason ? `<div class="trade-reason">原因: ${escapeHtml(t.reason)}</div>` : ''}
-                                ${t.expect ? `<div class="trade-expect">期望: ${escapeHtml(t.expect)}</div>` : ''}
-                                ${t.note ? `<div class="trade-note">备注: ${escapeHtml(t.note)}</div>` : ''}
-                                <div class="trade-actions">
-                                    <span onclick="editTrade('${t.id}')">编辑</span>
-                                    <span onclick="deleteTrade('${t.id}')">删除</span>
-                                </div>
+                        <div class="card trade-item" data-id="${t.id}">
+                            <div class="trade-header">
+                                <span class="trade-symbol">${escapeHtml(t.symbol)}</span>
+                                <span class="trade-type ${typeClass}">${t.type === 'buy' ? '买入' : '卖出'}</span>
+                            </div>
+                            <div class="trade-detail">
+                                <span>数量: ${qtyStr}</span>
+                                <span>价格: ${t.price.toFixed(2)}</span>
+                            </div>
+                            ${t.reason ? `<div class="trade-reason">原因: ${escapeHtml(t.reason)}</div>` : ''}
+                            ${t.expect ? `<div class="trade-expect">期望: ${escapeHtml(t.expect)}</div>` : ''}
+                            ${t.note ? `<div class="trade-note">备注: ${escapeHtml(t.note)}</div>` : ''}
+                            <div class="trade-actions">
+                                <span onclick="editTrade('${t.id}')">编辑</span>
+                                <span onclick="deleteTrade('${t.id}')">删除</span>
                             </div>
                         </div>
                     `;
@@ -941,7 +961,7 @@
             return html;
         }
 
-        // ---------- 统计页 ----------
+        // ---------- 统计页（简化版）----------
         async function renderStatsPage() {
             const trades = await getAll(STORES.trades);
             const capitals = await getAll(STORES.capital);
@@ -951,9 +971,12 @@
 
             const positions = {};
             let realizedPL = 0;
+            let sellCount = 0, winCount = 0;
+
             for (const t of allTradesSorted) {
                 if (!positions[t.symbol]) positions[t.symbol] = { quantity: 0, totalCost: 0, avgPrice: 0 };
                 const pos = positions[t.symbol];
+
                 if (t.type === 'buy') {
                     pos.quantity += t.quantity;
                     pos.totalCost += t.quantity * t.price;
@@ -962,49 +985,10 @@
                     if (pos.quantity >= t.quantity) {
                         const pl = t.quantity * (t.price - pos.avgPrice);
                         realizedPL += pl;
+                        sellCount++;
+                        if (pl > 0) winCount++;
                         pos.quantity -= t.quantity;
                         pos.totalCost = pos.quantity * pos.avgPrice;
-                    }
-                }
-            }
-
-            let intervalSellPL = 0;
-            let sellCount = 0;
-            let winCount = 0;
-            const tempPos = {};
-            for (const t of allTradesSorted) {
-                if (t.date < rangeStart) {
-                    if (!tempPos[t.symbol]) tempPos[t.symbol] = { quantity: 0, totalCost: 0, avgPrice: 0 };
-                    const pos = tempPos[t.symbol];
-                    if (t.type === 'buy') {
-                        pos.quantity += t.quantity;
-                        pos.totalCost += t.quantity * t.price;
-                        pos.avgPrice = pos.totalCost / pos.quantity;
-                    } else {
-                        if (pos.quantity >= t.quantity) {
-                            pos.quantity -= t.quantity;
-                            pos.totalCost = pos.quantity * pos.avgPrice;
-                        }
-                    }
-                }
-            }
-            for (const t of allTradesSorted) {
-                if (t.date >= rangeStart && t.date <= rangeEnd) {
-                    if (!tempPos[t.symbol]) tempPos[t.symbol] = { quantity: 0, totalCost: 0, avgPrice: 0 };
-                    const pos = tempPos[t.symbol];
-                    if (t.type === 'buy') {
-                        pos.quantity += t.quantity;
-                        pos.totalCost += t.quantity * t.price;
-                        pos.avgPrice = pos.totalCost / pos.quantity;
-                    } else {
-                        if (pos.quantity >= t.quantity) {
-                            const pl = t.quantity * (t.price - pos.avgPrice);
-                            intervalSellPL += pl;
-                            sellCount++;
-                            if (pl > 0) winCount++;
-                            pos.quantity -= t.quantity;
-                            pos.totalCost = pos.quantity * pos.avgPrice;
-                        }
                     }
                 }
             }
@@ -1018,68 +1002,7 @@
                 else if (c.type === 'withdrawal') totalWithdrawal += c.amount;
             });
             const currentCapital = initialCapital + totalDeposit - totalWithdrawal + realizedPL;
-
-            const stockIntervalPL = {};
-            const tempPos2 = {};
-            for (const t of allTradesSorted) {
-                if (t.date < rangeStart) {
-                    if (!tempPos2[t.symbol]) tempPos2[t.symbol] = { quantity: 0, totalCost: 0, avgPrice: 0 };
-                    const pos = tempPos2[t.symbol];
-                    if (t.type === 'buy') {
-                        pos.quantity += t.quantity;
-                        pos.totalCost += t.quantity * t.price;
-                        pos.avgPrice = pos.totalCost / pos.quantity;
-                    } else {
-                        if (pos.quantity >= t.quantity) {
-                            pos.quantity -= t.quantity;
-                            pos.totalCost = pos.quantity * pos.avgPrice;
-                        }
-                    }
-                }
-            }
-            for (const t of allTradesSorted) {
-                if (t.date >= rangeStart && t.date <= rangeEnd) {
-                    if (!tempPos2[t.symbol]) tempPos2[t.symbol] = { quantity: 0, totalCost: 0, avgPrice: 0 };
-                    const pos = tempPos2[t.symbol];
-                    if (t.type === 'buy') {
-                        pos.quantity += t.quantity;
-                        pos.totalCost += t.quantity * t.price;
-                        pos.avgPrice = pos.totalCost / pos.quantity;
-                    } else {
-                        if (pos.quantity >= t.quantity) {
-                            const pl = t.quantity * (t.price - pos.avgPrice);
-                            if (!stockIntervalPL[t.symbol]) stockIntervalPL[t.symbol] = 0;
-                            stockIntervalPL[t.symbol] += pl;
-                            pos.quantity -= t.quantity;
-                            pos.totalCost = pos.quantity * pos.avgPrice;
-                        }
-                    }
-                }
-            }
-
-            let stockRows = '';
-            const stockMap = {};
-            trades.forEach(t => {
-                if (t.date >= rangeStart && t.date <= rangeEnd) {
-                    if (!stockMap[t.symbol]) stockMap[t.symbol] = { buyAmount: 0, sellAmount: 0 };
-                    if (t.type === 'buy') stockMap[t.symbol].buyAmount += t.quantity * t.price;
-                    else stockMap[t.symbol].sellAmount += t.quantity * t.price;
-                }
-            });
-            for (const symbol in stockMap) {
-                const buy = stockMap[symbol].buyAmount;
-                const sell = stockMap[symbol].sellAmount;
-                const pl = stockIntervalPL[symbol] || 0;
-                stockRows += `
-                    <tr>
-                        <td>${escapeHtml(symbol)}</td>
-                        <td>${buy.toFixed(2)}</td>
-                        <td>${sell.toFixed(2)}</td>
-                        <td style="color:${pl >= 0 ? '#9a8aa8' : '#a89a8a'};">${pl.toFixed(2)}</td>
-                    </tr>
-                `;
-            }
-            if (!stockRows) stockRows = '<tr><td colspan="4" style="text-align:center;">暂无区间交易</td></tr>';
+            const winRate = sellCount ? (winCount / sellCount * 100).toFixed(1) + '%' : '-';
 
             let positionHtml = '';
             for (const symbol in positions) {
@@ -1140,24 +1063,17 @@
                             <div class="overview-value">${currentCapital.toFixed(2)}</div>
                         </div>
                         <div class="overview-item">
-                            <div class="overview-label">区间盈亏</div>
-                            <div class="overview-value" style="color:${intervalSellPL >= 0 ? '#9a8aa8' : '#a89a8a'};">${intervalSellPL.toFixed(2)}</div>
+                            <div class="overview-label">胜率</div>
+                            <div class="overview-value">${winRate}</div>
                         </div>
                         <div class="overview-item">
-                            <div class="overview-label">胜率</div>
-                            <div class="overview-value">${sellCount ? ((winCount/sellCount*100).toFixed(1) + '%') : '-'}</div>
+                            <div class="overview-label">总盈亏</div>
+                            <div class="overview-value" style="color:${realizedPL >= 0 ? '#9a8aa8' : '#a89a8a'};">${realizedPL.toFixed(2)}</div>
                         </div>
                     </div>
                     <div style="margin-top:16px;">
                         <button class="btn" onclick="openCapitalListModal()">资金管理</button>
                     </div>
-                </div>
-                <div class="card">
-                    <h3 style="margin-bottom:12px;">按股票汇总（区间）</h3>
-                    <table class="stock-table">
-                        <thead><tr><th>股票</th><th>买入额</th><th>卖出额</th><th>盈亏</th></tr></thead>
-                        <tbody>${stockRows}</tbody>
-                    </table>
                 </div>
                 <div class="card">
                     <h3 style="margin-bottom:12px;">当前持仓</h3>
@@ -1173,18 +1089,16 @@
             let html = '';
             events.forEach(e => {
                 html += `
-                    <div class="card">
-                        <div class="event-item" data-id="${e.id}">
-                            <div class="event-header">
-                                <span class="event-type ${e.type}">${e.type === 'event' ? '事件' : '潮流'}</span>
-                                <span style="color:var(--text-secondary);">${e.date}</span>
-                            </div>
-                            <div class="event-title">${escapeHtml(e.title)}</div>
-                            <div class="event-content">${escapeHtml(e.content)}</div>
-                            <div class="trade-actions">
-                                <span onclick="editEvent('${e.id}')">编辑</span>
-                                <span onclick="deleteEvent('${e.id}')">删除</span>
-                            </div>
+                    <div class="card event-item" data-id="${e.id}">
+                        <div class="event-header">
+                            <span class="event-type ${e.type}">${e.type === 'event' ? '事件' : '潮流'}</span>
+                            <span style="color:var(--text-secondary);">${e.date}</span>
+                        </div>
+                        <div class="event-title">${escapeHtml(e.title)}</div>
+                        <div class="event-content">${escapeHtml(e.content)}</div>
+                        <div class="trade-actions">
+                            <span onclick="editEvent('${e.id}')">编辑</span>
+                            <span onclick="deleteEvent('${e.id}')">删除</span>
                         </div>
                     </div>
                 `;
@@ -1216,9 +1130,9 @@
 
         // ---------- 日志操作 ----------
         function changeDay(delta) {
-            const d = new Date(currentDate);
+            const d = new Date(currentDate + 'T12:00:00');
             d.setDate(d.getDate() + delta);
-            currentDate = d.toISOString().split('T')[0];
+            currentDate = getLocalDateString(d);
             render();
         }
 
@@ -1301,7 +1215,7 @@
             document.getElementById('capitalModalTitle').innerText = existingId ? '编辑资金' : '新增资金';
             document.getElementById('capitalForm').reset();
             document.getElementById('capitalId').value = existingId || '';
-            document.getElementById('capitalDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('capitalDate').value = getLocalDateString(new Date());
             if (existingId) {
                 getById(STORES.capital, existingId).then(cap => {
                     if (cap) {
@@ -1378,9 +1292,25 @@
             render();
         }
 
-        // ---------- 日期范围 ----------
+        // ---------- 日期范围（仅界面）----------
         function setRange(type) {
-            updateRangeByType(type);
+            rangeType = type;
+            const today = new Date();
+            if (type === 'today') {
+                rangeStart = getLocalDateString(today);
+                rangeEnd = rangeStart;
+            } else if (type === 'week') {
+                const day = today.getDay();
+                const diff = day === 0 ? 6 : day - 1;
+                const monday = new Date(today);
+                monday.setDate(today.getDate() - diff);
+                rangeStart = getLocalDateString(monday);
+                rangeEnd = getLocalDateString(today);
+            } else if (type === 'month') {
+                const start = new Date(today.getFullYear(), today.getMonth(), 1);
+                rangeStart = getLocalDateString(start);
+                rangeEnd = getLocalDateString(today);
+            }
             render();
         }
 
@@ -1400,7 +1330,7 @@
             document.getElementById('eventModalTitle').innerText = '新增事件/潮流';
             document.getElementById('eventForm').reset();
             document.getElementById('eventId').value = '';
-            document.getElementById('eventDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('eventDate').value = getLocalDateString(new Date());
             document.getElementById('eventModal').classList.add('show');
         }
 
@@ -1505,7 +1435,6 @@
         // 启动
         init();
 
-        // Service Worker 注册（可选）
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js').catch(() => {});
